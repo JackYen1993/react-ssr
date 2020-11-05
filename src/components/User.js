@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import { fetchUsers } from "../actions/UserAction";
+import '@babel/polyfill';
 
 const User = () => {
   const dispatch = useDispatch();
@@ -21,6 +22,10 @@ const User = () => {
       </ul>
     </>
   );
+};
+
+User.getInitialData = async (store) => {
+  return store.dispatch(fetchUsers());
 };
 
 export default User;

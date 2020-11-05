@@ -2,14 +2,15 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { BrowserRouter } from "react-router-dom";
 import { Provider } from "react-redux";
-import App from './App';
+import { renderRoutes } from "react-router-config";
 import reportWebVitals from './reportWebVitals';
+import Routes from "./Routes";
 import store from "./Store";
 
-ReactDOM.hydrate(
+ReactDOM.render(
   <BrowserRouter>
     <Provider store={store}>
-      <App />
+      {renderRoutes(Routes)}
     </Provider>
   </BrowserRouter>,
   document.getElementById('root')
