@@ -5,8 +5,10 @@ import React from 'react';
 import express from 'express';
 import { renderToString } from 'react-dom/server';
 import { StaticRouter } from "react-router-dom";
+import { Provider } from "react-redux";
 
 import App from '../src/App';
+import store from "../src/Store";
 
 const PORT = process.env.PORT || 3006;
 const app = express();
@@ -16,7 +18,9 @@ app.use(express.static('./dist', { index: false }));
 app.get('*', (req, res) => {
   const app = renderToString(
     <StaticRouter location={req.path}>
-      <App />
+      <Provider store={store}>
+        <App />
+      </Provider>
     </StaticRouter>
   );
 
