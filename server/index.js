@@ -9,7 +9,7 @@ import { Provider } from "react-redux";
 import { matchRoutes, renderRoutes } from "react-router-config";
 
 import Routes from "../src/Routes";
-import store from "../src/Store";
+import configureStore from "../src/Store";
 
 const PORT = process.env.PORT || 3006;
 const app = express();
@@ -17,6 +17,8 @@ const app = express();
 app.use(express.static('./dist', { index: false }));
 
 app.get('*', (req, res) => {
+  const store = configureStore();
+
   const promises = matchRoutes(Routes, req.path).map(({ route }) => {
     const component = route.component;
     return component.getInitialData ? component.getInitialData(store) : null;
@@ -40,7 +42,8 @@ app.get('*', (req, res) => {
       return res.send(
         data.replace(
           '<div id="root"></div>',
-          `<div id="root">${app}</div>`
+          `<div id="root">${app}</div>
+           <script>window.__PRELOADED_STATE__ = ${JSON.stringify(store.getState()).replace(/</g, '\\u003c')}</script>`
         )
       );
     });

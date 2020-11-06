@@ -5,9 +5,14 @@ import { Provider } from "react-redux";
 import { renderRoutes } from "react-router-config";
 import reportWebVitals from './reportWebVitals';
 import Routes from "./Routes";
-import store from "./Store";
+import configureStore from "./Store";
 
-ReactDOM.render(
+const preloadedState = window.__PRELOADED_STATE__;
+delete window.__PRELOADED_STATE__;
+
+const store = configureStore(preloadedState);
+
+ReactDOM.hydrate(
   <BrowserRouter>
     <Provider store={store}>
       {renderRoutes(Routes)}

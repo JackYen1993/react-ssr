@@ -6,7 +6,7 @@ import '@babel/polyfill';
 
 const User = () => {
   const dispatch = useDispatch();
-  const users = useSelector((state) => state.users);
+  const users = useSelector(store => store.users.users);
   useEffect(() => {
     dispatch(fetchUsers());
   }, []);
