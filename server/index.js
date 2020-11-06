@@ -7,17 +7,48 @@ import { renderToString } from 'react-dom/server';
 import { StaticRouter } from "react-router-dom";
 import { Provider } from "react-redux";
 import { matchRoutes, renderRoutes } from "react-router-config";
+import { CookieStorage, NodeCookiesWrapper } from 'redux-persist-cookie-storage';
+import { getStoredState, persistCombineReducers } from 'redux-persist';
+import { createStore, applyMiddleware } from "redux";
+import Cookies from 'cookies';
 
 import Routes from "../src/Routes";
-import configureStore from "../src/Store";
+import thunk from "redux-thunk";
+import users from "../src/reducers/UserReducer";
+import auth from "../src/reducers/AuthReducer";
 
 const PORT = process.env.PORT || 3006;
 const app = express();
 
 app.use(express.static('./dist', { index: false }));
 
-app.get('*', (req, res) => {
-  const store = configureStore();
+app.get('*', async (req, res) => {
+  const cookieJar = new NodeCookiesWrapper(new Cookies(req, res));
+
+  const persistConfig = {
+      key: 'ssr-state',
+      storage: new CookieStorage(cookieJar),
+      stateReconciler(inboundState, originalState) {
+          return originalState;
+      }
+  };
+
+  let preloadedState;
+  try {
+      preloadedState = await getStoredState(persistConfig);
+  } catch (e) {
+      preloadedState = {};
+  }
+
+  const reducers = {
+    auth,
+    users
+  };
+
+  const rootReducer = persistCombineReducers(persistConfig, reducers);
+
+  const store = createStore(rootReducer, preloadedState, applyMiddleware(thunk));
+  res.removeHeader('Set-Cookie');
 
   const promises = matchRoutes(Routes, req.path).map(({ route }) => {
     const component = route.component;

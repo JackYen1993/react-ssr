@@ -1,9 +1,24 @@
-import { createStore, combineReducers, applyMiddleware, compose } from "redux";
+import { createStore, applyMiddleware, compose } from "redux";
 import thunk from "redux-thunk";
+import { CookieStorage } from 'redux-persist-cookie-storage';
+import { persistCombineReducers } from 'redux-persist';
+import Cookies from 'cookies-js';
 import users from "./reducers/UserReducer";
+import auth from "./reducers/AuthReducer";
 
 const configureStore = (preloadedState = {}) => {
-  const reducers = { users };
+  const reducers = {
+    auth,
+    users
+  };
+
+  const persistConfig = {
+    key: 'ssr-state',
+    storage: new CookieStorage(Cookies, {}),
+    whitelist: ['auth']
+  };
+
+  const rootReducer = persistCombineReducers(persistConfig, reducers);
 
   // Config enhancers
   const enhancers = [];
@@ -14,7 +29,7 @@ const configureStore = (preloadedState = {}) => {
   }
 
   return createStore(
-    combineReducers(reducers),
+    rootReducer,
     preloadedState,
     compose(applyMiddleware(thunk), ...enhancers)
   );

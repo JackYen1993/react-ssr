@@ -4,6 +4,8 @@ import { BrowserRouter } from "react-router-dom";
 import { Provider } from "react-redux";
 import { renderRoutes } from "react-router-config";
 import reportWebVitals from './reportWebVitals';
+import { persistStore } from 'redux-persist';
+import { PersistGate } from 'redux-persist/integration/react';
 import Routes from "./Routes";
 import configureStore from "./Store";
 
@@ -11,11 +13,14 @@ const preloadedState = window.__PRELOADED_STATE__;
 delete window.__PRELOADED_STATE__;
 
 const store = configureStore(preloadedState);
+const persistor = persistStore(store);
 
 ReactDOM.hydrate(
   <BrowserRouter>
     <Provider store={store}>
-      {renderRoutes(Routes)}
+      <PersistGate loading={null} persistor={persistor}>
+        {renderRoutes(Routes)}
+      </PersistGate>
     </Provider>
   </BrowserRouter>,
   document.getElementById('root')
